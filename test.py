@@ -3,14 +3,20 @@ from termcolor import colored
 import os
 
 
+
 if "YT_API_KEY" not in os.environ:
 	print("Please set the YT_API_KEY environment variable.")
 	exit(1)
 
 YT_API_KEY = os.environ["YT_API_KEY"]
 
+try:
+	youtube = build('youtube', 'v3', developerKey=YT_API_KEY)
+	print("YouTube API client created successfully.")
+except Exception as e:
+	print(f"Failed to create YouTube API client: {e}")
+	exit(1)
 
-youtube = build('youtube', 'v3', developerKey=YT_API_KEY)
 
 
 def get_video(video_ID):
@@ -54,37 +60,44 @@ def get_playlist(playlist_ID):
 
 
 def get_playlist_details(playlist_ID):
-    '''
-    With contentDetails we can get video ID so we can extract later more information (number of likes, views, duration of the video...)
-    With status we can check if that video is public, private or 
-    '''
-    import pprint
-    request = youtube.playlistItems().list(
-        part='snippet, contentDetails, status',
-        playlistId=playlist_ID,
-        maxResults=50)
-    response = request.execute()
-    print(pprint.pprint(response))
+	'''
+	With contentDetails we can get video ID so we can extract later more information (number of likes, views, duration of the video...)
+	With status we can check if that video is public, private or 
+	'''
+	try:
+		import pprint
+		request = youtube.playlistItems().list(
+			part='snippet, contentDetails, status',
+			playlistId=playlist_ID,
+			maxResults=50)
+		response = request.execute()
+		print(pprint.pprint(response))
 
-    items = response['items']
+		items = response['items']
 
-    for item in items:
-        video_item = item.get('snippet', {}).get('position', 'No information available')
-        video_title = item.get('snippet', {}).get('title', 'No title available')
-        if video_title == 'Deleted video' or video_title == 'Private video':
-            print(colored(f"{video_item} - {video_title}\n", "red"))
-        else:
-            print(colored(f"{video_item} - {video_title}\n", 'green'))
-        video_URL = 'https://www.youtube.com/watch?v=' + item.get('contentDetails', {}).get('videoId', 'No video ID available')
-        print(f"Video URL: {video_URL}\n")
-        video_status = item.get('status', {}).get('privacyStatus', 'No information available')
-        print(f"Video status: {video_status}")
-        video_thumbnail = item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get('url', 'No default URL available')
-        print(f"Video thumbnail: {video_thumbnail}")
-        video_owner = item.get('snippet', {}).get('videoOwnerChannelTitle', 'No information available')
-        print(f"Video Channel: {video_owner}")
-        print("-"*100 + "\n")
-    return response
+		for item in items:
+			video_item = item.get('snippet', {}).get('position', 'No information available')
+			video_title = item.get('snippet', {}).get('title', 'No title available')
+			if video_title == 'Deleted video' or video_title == 'Private video':
+				print(colored(f"{video_item} - {video_title}\n", "red"))
+			else:
+				print(colored(f"{video_item} - {video_title}\n", 'green'))
+			video_URL = 'https://www.youtube.com/watch?v=' + item.get('contentDetails', {}).get('videoId', 'No video ID available')
+			print(f"Video URL: {video_URL}\n")
+			video_status = item.get('status', {}).get('privacyStatus', 'No information available')
+			print(f"Video status: {video_status}")
+			video_thumbnail = item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get('url', 'No default URL available')
+			print(f"Video thumbnail: {video_thumbnail}")
+			video_owner = item.get('snippet', {}).get('videoOwnerChannelTitle', 'No information available')
+			print(f"Video Channel: {video_owner}")
+			print("-"*100 + "\n")
+		
+		return response
+	
+	except Exception as e:
+		print(f"An error occurred while fetching playlist details: {e}")
+		return None
+	
 
 
 def time_format(duration):
