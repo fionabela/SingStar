@@ -3,11 +3,11 @@ from termcolor import colored
 import os
 
 
-try:
-	with open('./keys.txt', mode='r') as my_file:
-		YT_API_KEY=my_file.read().split('=')[1]
-except FileNotFoundError as e:
-	print('File does not exist. Key cannot be retrieved.')
+if "YT_API_KEY" not in os.environ:
+	print("Please set the YT_API_KEY environment variable.")
+	exit(1)
+
+YT_API_KEY = os.environ["YT_API_KEY"]
 
 
 youtube = build('youtube', 'v3', developerKey=YT_API_KEY)
