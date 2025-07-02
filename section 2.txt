@@ -1,0 +1,65 @@
+Task 1
+
+I would create a GitHub Actions workflow file in .github/workflows/ that schedules the script to run once a day using a cron expression. The workflow would check out the repo, set up Python, install dependencies, and run the script. I would store any secret credentials (like API keys) securely in GitHub Secrets and pass them as environment variables to the workflow. This way, the script runs automatically every day without needing my own server, and I can monitor logs and results directly in GitHub.
+
+
+
+
+
+Task 2
+
+The YouTube Data API limits the number of playlist items returned per request to 50. To retrieve all videos in a playlist, the API provides a nextPageToken in the response when more items are available. Clients can use this token in subsequent requests to fetch the next batch of results. By iterating requests with updated pageToken parameters until no nextPageToken is returned, clients can obtain the entire playlist content. Implementing this pagination mechanism is necessary for processing playlists with more than 50 videos.
+
+
+
+
+
+Task 3
+
+- I would implement persistent storage of playlist and video data so the information remains available across runs, faster access to avoid repeated API calls for the same playlist, and incremental updates to only fetch new or modified videos. Additionally, using a database makes it easier to query, filter, and analyze the stored data and ensures data integrity through primary keys and constraints, reducing duplication and inconsistencies.
+
+- I would design two tables:
+
+playlists
+---------
+playlist_id TEXT PRIMARY KEY
+title TEXT
+description TEXT
+last_updated TIMESTAMP
+This table stores general information about each playlist, ensuring that each playlist ID is unique and tracking when the data was last updated.
+
+videos
+-------
+video_id TEXT PRIMARY KEY
+FOREIGN KEY (playlist_id)
+playlist_id TEXT
+position INT
+title TEXT
+status TEXT
+thumbnail_url TEXT
+channel_title TEXT
+video_url TEXT
+
+This table stores details about each video, including its position in the playlist, metadata, and a foreign key linking it to the corresponding playlist.
+
+- function get_cached_playlist(playlist_id):
+    if playlist_id exists in database:
+        return stored playlist and video data
+    else:
+        return None
+
+function fetch_playlist_details(playlist_id):
+    call YouTube API to get playlist info and videos
+    return playlist info and videos
+
+function save_playlist_to_db(playlist_info, videos):
+    insert or update playlist and videos in the database
+
+function get_playlist_details(playlist_id):
+    data = get_cached_playlist(playlist_id)
+    if data exists:
+        return data from the database
+    else:
+        data = fetch_playlist_details(playlist_id)
+        save_playlist_to_db(data)
+        return data
