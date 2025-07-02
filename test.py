@@ -182,21 +182,20 @@ if __name__:
     #details = get_video(video_ID)
     if not read_cache():
         print("No cache found.")
-        playlist_URL = input(colored("\nEnter your playlist URL: ", "red"))
+        playlist_ID = input(colored("\nEnter your playlist URL: ", "red")).split("=")[-1]
         print("[+] Saving to cache...")
-        save_to_cache(playlist_URL)
+        save_to_cache(playlist_ID)
     else:
         print(f"\n[*] Cache file: {read_cache()}")
-        playlist_URL = input(colored("\nEnter your playlist URL (press Enter to use cache): ", "red"))
-        if not playlist_URL:
+        playlist_ID = input(colored("\nEnter your playlist URL (press Enter to use cache): ", "red")).split("=")[-1]
+        if not playlist_ID:
             print("Using cache...")
-            playlist_URL = read_cache()
+            playlist_ID = read_cache()
         else:
             print("[+] Saving to cache...")
-            save_to_cache(playlist_URL)
-    
-    print(playlist_URL)
-    playlist_ID = playlist_URL.split("=")[-1]
+            save_to_cache(playlist_ID)
+
+    print(playlist_ID)
     get_playlist(playlist_ID)
     get_playlist_details(playlist_ID)
     #get_video_information(details)
